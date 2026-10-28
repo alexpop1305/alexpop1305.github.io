@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alexandru Popa | Cyberpunk Portfolio</title>
+    <title>Popa Alexandru | Cyberpunk Portfolio</title>
     
     <!-- Fonturi -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,13 +37,13 @@
             cursor: none; /* Ascundem cursorul nativ */
         }
 
-        /* --- FUNDAL GRILA 3D ANIMATA (CSS ONLY) --- */
+        /* --- FUNDAL GRILA 3D ANIMATA --- */
         .bg-grid {
             position: fixed;
             top: 0; left: 0;
             width: 100vw; height: 100vh;
             perspective: 500px;
-            z-index: -1;
+            z-index: -2; /* In spatele particulelor */
             overflow: hidden;
             pointer-events: none;
         }
@@ -65,6 +65,15 @@
         @keyframes moveGrid {
             0% { background-position: 0 0; }
             100% { background-position: 0 40px; }
+        }
+
+        /* --- CANVAS PENTRU PARTICULE --- */
+        #particle-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: -1; /* Intre grid si continut */
+            pointer-events: none;
         }
 
         /* --- CURSOR CUSTOM --- */
@@ -151,17 +160,22 @@
         .glitch-wrapper {
             position: relative;
             isolation: isolate;
+            width: 100%;
+            display: flex;
+            justify-content: center;
         }
 
         .glitch-text {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: clamp(4rem, 15vw, 12rem);
+            /* Ajustat pentru "POPA ALEXANDRU" ca sa incapa pe un rand */
+            font-size: clamp(2rem, 8vw, 8rem); 
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: -0.05em;
-            line-height: 0.8;
+            line-height: 0.9;
             color: var(--text);
             position: relative;
+            white-space: nowrap;
         }
 
         .glitch-text::before,
@@ -176,14 +190,14 @@
         .glitch-text::before {
             left: 3px;
             text-shadow: -2px 0 var(--neon-magenta);
-            clip: rect(24px, 550px, 90px, 0);
+            clip: rect(24px, 9999px, 90px, 0);
             animation: glitch-anim-2 3s infinite linear alternate-reverse;
         }
 
         .glitch-text::after {
             left: -3px;
             text-shadow: -2px 0 var(--neon-cyan);
-            clip: rect(85px, 550px, 140px, 0);
+            clip: rect(85px, 9999px, 140px, 0);
             animation: glitch-anim 2.5s infinite linear alternate-reverse;
         }
 
@@ -270,7 +284,6 @@
             box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
         }
 
-        /* Efect de lumina pe card in functie de mouse */
         .card::before {
             content: '';
             position: absolute;
@@ -292,7 +305,7 @@
         .card-content {
             position: relative;
             z-index: 1;
-            transform: translateZ(40px); /* Efect 3D */
+            transform: translateZ(40px);
         }
 
         .card-number {
@@ -349,7 +362,7 @@
             z-index: 10;
         }
 
-        /* --- ANIMATII SCROLL (VANILLA JS REVEAL) --- */
+        /* --- ANIMATII SCROLL --- */
         .reveal {
             opacity: 0;
             transform: translateY(50px);
@@ -368,6 +381,7 @@
             nav { padding: 20px; }
             .projects-section { padding: 100px 20px; }
             .card { padding: 30px; }
+            .glitch-text { font-size: 12vw; white-space: normal; text-align: center; }
         }
     </style>
 </head>
@@ -378,20 +392,23 @@
         <div class="grid-plane"></div>
     </div>
 
+    <!-- Canvas Particule -->
+    <canvas id="particle-canvas"></canvas>
+
     <!-- Custom Cursor -->
     <div class="cursor" id="cursor"></div>
     <div class="cursor-ring" id="cursor-ring"></div>
 
     <!-- Navigare -->
     <nav>
-        <div class="logo">ALX.</div>
+        <div class="logo">PAL.</div>
         <div class="status">SYSTEM.ONLINE</div>
     </nav>
 
     <!-- Hero Section -->
     <section class="hero">
         <div class="glitch-wrapper">
-            <h1 class="glitch-text" data-text="ALEXANDRU">ALEXANDRU</h1>
+            <h1 class="glitch-text" data-text="POPA ALEXANDRU">POPA ALEXANDRU</h1>
         </div>
         <p class="hero-subtitle">
             [ CS Student & Aspiring Developer ] <br>
@@ -446,12 +463,12 @@
 
     <!-- Footer -->
     <footer>
-        © 2026 ALEXANDRU POPA // ALL RIGHTS RESERVED
+        © 2026 POPA ALEXANDRU // ALL RIGHTS RESERVED
     </footer>
 
-    <!-- JAVASCRIPT (ZERO LIBRARII, VANILLA ONLY) -->
+    <!-- JAVASCRIPT -->
     <script>
-        // 1. CUSTOM CURSOR (Smooth Lerp with requestAnimationFrame)
+        // 1. CUSTOM CURSOR (Smooth Lerp)
         const cursor = document.getElementById('cursor');
         const ring = document.getElementById('cursor-ring');
         let mouseX = 0, mouseY = 0;
@@ -460,12 +477,10 @@
         document.addEventListener('mousemove', (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
-            // Cursorul mic urmeaza instant
             cursor.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
         });
 
         function animateRing() {
-            // Inelul urmeaza cu intarziere (lerp)
             ringX += (mouseX - ringX) * 0.15;
             ringY += (mouseY - ringY) * 0.15;
             ring.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
@@ -473,13 +488,12 @@
         }
         animateRing();
 
-        // Hover effect pe carduri
         document.querySelectorAll('.card, a').forEach(el => {
             el.addEventListener('mouseenter', () => ring.classList.add('hover'));
             el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
         });
 
-        // 2. 3D TILT EFFECT PE CARDURI + LUMINA
+        // 2. 3D TILT EFFECT PE CARDURI
         document.querySelectorAll('.card').forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
@@ -488,39 +502,85 @@
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
 
-                // Calcul rotatie 3D (max 10 grade)
                 const rotateX = ((y - centerY) / centerY) * -10;
                 const rotateY = ((x - centerX) / centerX) * 10;
 
-                // Aplicam rotatia
                 card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-
-                // Setam coordonatele pentru lumina (gradientul din CSS)
                 card.style.setProperty('--x', `${x}px`);
                 card.style.setProperty('--y', `${y}px`);
             });
 
             card.addEventListener('mouseleave', () => {
-                // Resetam totul cand scoatem mouse-ul
                 card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
             });
         });
 
-        // 3. SCROLL REVEAL (Intersection Observer - API Nativ)
+        // 3. SCROLL REVEAL
         const reveals = document.querySelectorAll('.reveal');
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
-                    observer.unobserve(entry.target); // Se animeaza o singura data
+                    observer.unobserve(entry.target);
                 }
             });
-        }, {
-            threshold: 0.1, // Se declanseaza cand 10% din card e vizibil
-            rootMargin: "0px 0px -50px 0px"
-        });
-
+        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
         reveals.forEach(reveal => observer.observe(reveal));
+
+        // 4. SISTEM DE PARTICULE (VANILLA JS)
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 2 + 0.5; // Marimea intre 0.5 si 2.5
+                this.speedY = Math.random() * -0.6 - 0.1; // Se misca in sus
+                this.speedX = (Math.random() - 0.5) * 0.3; // Deriva usor stanga/dreapta
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                
+                // Daca iese din ecran, il regeneram jos
+                if (this.y < 0) {
+                    this.y = height;
+                    this.x = Math.random() * width;
+                }
+            }
+            draw() {
+                ctx.fillStyle = `rgba(0, 240, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Generam 150 de particule
+        for (let i = 0; i < 150; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
     </script>
 </body>
 </html>
