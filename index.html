@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alexandru Popa | Cyberpunk Portfolio</title>
+    
+    <!-- Fonturi -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- SETARI GLOBALE --- */
+        :root {
+            --bg: #050505;
+            --text: #ffffff;
+            --muted: #888888;
+            --neon-cyan: #00f0ff;
+            --neon-magenta: #ff003c;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(0, 240, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            cursor: none; /* Ascundem cursorul nativ */
+        }
+
+        /* --- FUNDAL GRILA 3D ANIMATA (CSS ONLY) --- */
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            perspective: 500px;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .grid-plane {
+            position: absolute;
+            top: 50%; left: -50%;
+            width: 200%; height: 200%;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transform: rotateX(75deg) translateY(-50%);
+            animation: moveGrid 5s linear infinite;
+            mask-image: linear-gradient(to bottom, transparent, black 40%, black 60%, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 40%, black 60%, transparent);
+        }
+
+        @keyframes moveGrid {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 40px; }
+        }
+
+        /* --- CURSOR CUSTOM --- */
+        .cursor {
+            position: fixed; top: 0; left: 0;
+            width: 8px; height: 8px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            pointer-events: none; z-index: 9999;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+        }
+
+        .cursor-ring {
+            position: fixed; top: 0; left: 0;
+            width: 40px; height: 40px;
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            border-radius: 50%;
+            pointer-events: none; z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, border-color 0.2s;
+        }
+
+        .cursor-ring.hover {
+            width: 70px; height: 70px;
+            border-color: var(--neon-magenta);
+            background: rgba(255, 0, 60, 0.05);
+        }
+
+        /* --- NAVIGARE --- */
+        nav {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            padding: 30px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            mix-blend-mode: difference;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: -0.05em;
+            color: var(--text);
+        }
+
+        .status {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--neon-cyan);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status::before {
+            content: '';
+            width: 8px; height: 8px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--neon-cyan); }
+            50% { opacity: 0.3; box-shadow: none; }
+        }
+
+        /* --- HERO SECTION (TEXT 3D OVERLAP) --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .glitch-wrapper {
+            position: relative;
+            isolation: isolate;
+        }
+
+        .glitch-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(4rem, 15vw, 12rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: -0.05em;
+            line-height: 0.8;
+            color: var(--text);
+            position: relative;
+        }
+
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: var(--bg);
+        }
+
+        .glitch-text::before {
+            left: 3px;
+            text-shadow: -2px 0 var(--neon-magenta);
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+
+        .glitch-text::after {
+            left: -3px;
+            text-shadow: -2px 0 var(--neon-cyan);
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(10px, 9999px, 83px, 0); }
+            20% { clip: rect(62px, 9999px, 14px, 0); }
+            40% { clip: rect(33px, 9999px, 91px, 0); }
+            60% { clip: rect(81px, 9999px, 42px, 0); }
+            80% { clip: rect(12px, 9999px, 66px, 0); }
+            100% { clip: rect(51px, 9999px, 26px, 0); }
+        }
+
+        @keyframes glitch-anim-2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); }
+            20% { clip: rect(12px, 9999px, 56px, 0); }
+            40% { clip: rect(88px, 9999px, 23px, 0); }
+            60% { clip: rect(45px, 9999px, 78px, 0); }
+            80% { clip: rect(92px, 9999px, 11px, 0); }
+            100% { clip: rect(34px, 9999px, 62px, 0); }
+        }
+
+        .hero-subtitle {
+            margin-top: 40px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--muted);
+            font-size: 1rem;
+            text-align: center;
+            letter-spacing: 0.1em;
+        }
+
+        /* --- SECTIUNEA DE PROIECTE (3D TILT) --- */
+        .projects-section {
+            padding: 150px 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .section-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            margin-bottom: 60px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--neon-cyan), transparent);
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            perspective: 1000px;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transform-style: preserve-3d;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 350px;
+        }
+
+        .card:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
+        }
+
+        /* Efect de lumina pe card in functie de mouse */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: var(--y); left: var(--x);
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.15), transparent 60%);
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 1;
+            transform: translateZ(40px); /* Efect 3D */
+        }
+
+        .card-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+            position: absolute;
+            top: 20px; right: 20px;
+            z-index: 0;
+            transform: translateZ(20px);
+        }
+
+        .card h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+
+        .card p {
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .card-tags {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            transform: translateZ(30px);
+        }
+
+        .tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            padding: 6px 12px;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            color: var(--neon-cyan);
+            border-radius: 4px;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 50px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--muted);
+            font-size: 0.8rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* --- ANIMATII SCROLL (VANILLA JS REVEAL) --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            body { cursor: auto; }
+            .cursor, .cursor-ring { display: none; }
+            nav { padding: 20px; }
+            .projects-section { padding: 100px 20px; }
+            .card { padding: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Fundal Grid -->
+    <div class="bg-grid">
+        <div class="grid-plane"></div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursor-ring"></div>
+
+    <!-- Navigare -->
+    <nav>
+        <div class="logo">ALX.</div>
+        <div class="status">SYSTEM.ONLINE</div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="glitch-wrapper">
+            <h1 class="glitch-text" data-text="ALEXANDRU">ALEXANDRU</h1>
+        </div>
+        <p class="hero-subtitle">
+            [ CS Student & Aspiring Developer ] <br>
+            [ Building my foundation in Tech ]
+        </p>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="projects-section">
+        <h2 class="section-title">Selected Works</h2>
+        
+        <div class="cards-container">
+            
+            <div class="card reveal">
+                <div class="card-number">01</div>
+                <div class="card-content">
+                    <h3>3D WebGL Portfolio</h3>
+                    <p>A fully custom, interactive 3D portfolio built to push the limits of the browser. Features particle systems and kinetic typography.</p>
+                </div>
+                <div class="card-tags">
+                    <span class="tag">WebGL</span>
+                    <span class="tag">CSS 3D</span>
+                </div>
+            </div>
+
+            <div class="card reveal" style="transition-delay: 0.1s;">
+                <div class="card-number">02</div>
+                <div class="card-content">
+                    <h3>File I/O System</h3>
+                    <p>A robust C application handling memory buffers, file streams, and dynamic parsing. Built from scratch with a focus on performance.</p>
+                </div>
+                <div class="card-tags">
+                    <span class="tag">C Language</span>
+                    <span class="tag">Memory</span>
+                </div>
+            </div>
+
+            <div class="card reveal" style="transition-delay: 0.2s;">
+                <div class="card-number">03</div>
+                <div class="card-content">
+                    <h3>Cloud & AI Architecture</h3>
+                    <p>Exploring Azure infrastructure and deploying intelligent agents. Learning how to scale applications in the cloud.</p>
+                </div>
+                <div class="card-tags">
+                    <span class="tag">Azure</span>
+                    <span class="tag">AI</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        © 2026 ALEXANDRU POPA // ALL RIGHTS RESERVED
+    </footer>
+
+    <!-- JAVASCRIPT (ZERO LIBRARII, VANILLA ONLY) -->
+    <script>
+        // 1. CUSTOM CURSOR (Smooth Lerp with requestAnimationFrame)
+        const cursor = document.getElementById('cursor');
+        const ring = document.getElementById('cursor-ring');
+        let mouseX = 0, mouseY = 0;
+        let ringX = 0, ringY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            // Cursorul mic urmeaza instant
+            cursor.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+        });
+
+        function animateRing() {
+            // Inelul urmeaza cu intarziere (lerp)
+            ringX += (mouseX - ringX) * 0.15;
+            ringY += (mouseY - ringY) * 0.15;
+            ring.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
+            requestAnimationFrame(animateRing);
+        }
+        animateRing();
+
+        // Hover effect pe carduri
+        document.querySelectorAll('.card, a').forEach(el => {
+            el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+            el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+        });
+
+        // 2. 3D TILT EFFECT PE CARDURI + LUMINA
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                // Calcul rotatie 3D (max 10 grade)
+                const rotateX = ((y - centerY) / centerY) * -10;
+                const rotateY = ((x - centerX) / centerX) * 10;
+
+                // Aplicam rotatia
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+
+                // Setam coordonatele pentru lumina (gradientul din CSS)
+                card.style.setProperty('--x', `${x}px`);
+                card.style.setProperty('--y', `${y}px`);
+            });
+
+            card.addEventListener('mouseleave', () => {
+                // Resetam totul cand scoatem mouse-ul
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+            });
+        });
+
+        // 3. SCROLL REVEAL (Intersection Observer - API Nativ)
+        const reveals = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target); // Se animeaza o singura data
+                }
+            });
+        }, {
+            threshold: 0.1, // Se declanseaza cand 10% din card e vizibil
+            rootMargin: "0px 0px -50px 0px"
+        });
+
+        reveals.forEach(reveal => observer.observe(reveal));
+    </script>
+</body>
+</html>
